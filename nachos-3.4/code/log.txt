@@ -1,0 +1,16 @@
+cd threads; gmake depend
+gmake[1]: Entering directory `/home/tareq/Sandbox/code-linux/nachos-3.4/code/threads'
+g++ -I../threads -I../machine -DTHREADS -DHOST_i386 -DCHANGED -M ../threads/main.cc ../threads/list.cc ../threads/scheduler.cc ../threads/synch.cc ../threads/synchlist.cc ../threads/system.cc ../threads/thread.cc ../threads/utility.cc ../threads/buffer.cc ../threads/producer.cc ../threads/consumer.cc ../threads/threadtest.cc ../machine/interrupt.cc ../machine/sysdep.cc ../machine/stats.cc ../machine/timer.cc > makedep
+echo '/^# DO NOT DELETE THIS LINE/+2,$d' >eddep
+echo '$r makedep' >>eddep
+echo 'w' >>eddep
+ed - Makefile < eddep
+rm eddep makedep 
+echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
+echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
+echo '# see make depend above' >> Makefile
+gmake[1]: Leaving directory `/home/tareq/Sandbox/code-linux/nachos-3.4/code/threads'
+cd threads; gmake nachos
+gmake[1]: Entering directory `/home/tareq/Sandbox/code-linux/nachos-3.4/code/threads'
+g++ main.o list.o scheduler.o synch.o synchlist.o system.o thread.o utility.o buffer.o producer.o consumer.o threadtest.o interrupt.o stats.o sysdep.o timer.o  switch.o  -o nachos
+gmake[1]: Leaving directory `/home/tareq/Sandbox/code-linux/nachos-3.4/code/threads'
