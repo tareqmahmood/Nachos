@@ -11,8 +11,8 @@ MemoryManager::MemoryManager(int n)
 
 MemoryManager::~MemoryManager()
 {
-	delete map;
 	delete memLock;
+	delete map;
 }
 
 int MemoryManager::AllocPage()
