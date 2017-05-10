@@ -3,6 +3,11 @@ QUERY:
 1. "Write functions for reading from and writing to virtual memory." -- where should i write?
 
 
+PENDING:
+
+1. issue concerning path length
+
+
 TO DO:
 
 1. page table lock - is it necessary?

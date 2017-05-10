@@ -59,21 +59,23 @@ void SafeRead();
 
 void ThreadFunction(int arg)
 {
-    // if(arg == 0)
-    // {
-    //     currentThread->RestoreUserState();
-    // }
-    // else if(arg == 1)
-    // {
-    //     if(currentThread->space != NULL)
-    //     {
-    //         currentThread->space->InitRegisters();
-    //         currentThread->space->RestoreState();
-    //     }
-    // }
+    if(arg == 0)
+    {
+        currentThread->RestoreUserState();
+    }
+    else if(arg == 1)
+    {
+        if(currentThread->space != NULL)
+        {
+            currentThread->space->InitRegisters();
+            currentThread->space->RestoreState();
+        }
+    }
 
-    currentThread->space->InitRegisters();
-    currentThread->space->RestoreState();
+    printf("%d\n", arg);
+
+    // currentThread->space->InitRegisters();
+    // currentThread->space->RestoreState();
     
     machine->Run();
 }
@@ -114,7 +116,26 @@ ExceptionHandler(ExceptionType which)
 void Syscall_Exit()
 {
     int status = machine->ReadRegister(REG_A0);
+
+    printf("Exiting %s. with value %d\n", currentThread->getName(), status);
     
+    int PID = currentThread->PID;
+
+    // freeing page table
+    AddrSpace* space = (AddrSpace*) processTable->Get(PID);
+    delete space;
+
+    // freeing process entry
+    processTable->Free(PID);
+
+    // if there are no more processes, Halt()
+    if(processTable->getProcessCount() == 0)
+    {
+        printf("Last thread %s.\n", currentThread->getName());
+        interrupt->Halt();
+    }
+
+    // otherwise, just stop this thread
     currentThread->Finish();
     machine->WriteRegister(REG_V0, status);
 }
@@ -144,6 +165,8 @@ void Syscall_Exec()
 
     len = i;
 
+    printf("executable file %s\n", path);
+
     OpenFile* exeFile = fileSystem->Open(path);
 
     if(exeFile == NULL)
@@ -168,10 +191,16 @@ void Syscall_Exec()
         newThread->PID = processTable->Alloc(addrspace);
         newThread->space = addrspace;
 
+        printf("1\n");
+
         // start new process
-        newThread->Fork(ThreadFunction, 1);
+        newThread->Fork(ThreadFunction, 0);
+
+        printf("2\n");
 
         // return PID to Kernel
         machine->WriteRegister(REG_V0, newThread->PID);
+
+        printf("3\n");
     }
 }

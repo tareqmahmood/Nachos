@@ -4,5 +4,5 @@ int main()
 {
 	//int n = 20;
 	//Write("Hello World!\n", 15, 1);
-	Halt();
+	Exit(0);
 }
