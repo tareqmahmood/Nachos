@@ -15,7 +15,7 @@
 
 #include "copyright.h"
 #include "filesys.h"
-#include "lock.h"
+// #include "synch.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
@@ -37,7 +37,7 @@ class AddrSpace {
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
-    Lock* pageLock;
+    // Lock* pageLock;
 };
 
 #endif // ADDRSPACE_H

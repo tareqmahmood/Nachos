@@ -7,7 +7,6 @@
 
 #include "copyright.h"
 #include "system.h"
-#include "memorymanager.h"
 
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
@@ -20,7 +19,10 @@ Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
 
-MemoryManager* memorymanager;
+
+  
+
+
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -32,6 +34,10 @@ SynchDisk   *synchDisk;
 
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
+
+MemoryManager *memorymanager;       // manage page allocation
+Lock *memoryLock;                   // lock on memory read and write 
+ 
 #endif
 
 #ifdef NETWORK
@@ -86,6 +92,16 @@ Initialize(int argc, char **argv)
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
+
+    // **************** My Code Starts **************** //
+
+    memorymanager = new MemoryManager(NumPhysPages);
+
+    memoryLock = new Lock("Memory Lock");
+
+    // **************** My Code Ends ****************** //
+
+
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk
@@ -146,6 +162,7 @@ Initialize(int argc, char **argv)
     // object to save its state. 
     currentThread = new Thread("main");		
     currentThread->setStatus(RUNNING);
+
 
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
