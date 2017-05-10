@@ -1,0 +1,2 @@
+cd userprog
+gmake depend

@@ -35,8 +35,14 @@ SynchDisk   *synchDisk;
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
 
+    // **************** My Code Starts **************** //
+
 MemoryManager *memorymanager;       // manage page allocation
 Lock *memoryLock;                   // lock on memory read and write 
+
+ProcessTable *processTable;
+
+    // **************** My Code Ends **************** //
  
 #endif
 
@@ -98,6 +104,8 @@ Initialize(int argc, char **argv)
     memorymanager = new MemoryManager(NumPhysPages);
 
     memoryLock = new Lock("Memory Lock");
+
+    processTable = new ProcessTable(MAX_PROCESS_NUMBER);
 
     // **************** My Code Ends ****************** //
 

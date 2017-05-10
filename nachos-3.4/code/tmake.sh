@@ -1,0 +1,2 @@
+cd threads
+gmake depend

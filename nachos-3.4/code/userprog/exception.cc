@@ -48,19 +48,130 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
+#define REG_V0 2
+#define REG_R2 2
+#define REG_A0 4
+#define REG_A1 5
+
+#define MAX_FILEPATH_LENGTH 50
+
+void SafeRead();
+
+void ThreadFunction(int arg)
+{
+    // if(arg == 0)
+    // {
+    //     currentThread->RestoreUserState();
+    // }
+    // else if(arg == 1)
+    // {
+    //     if(currentThread->space != NULL)
+    //     {
+    //         currentThread->space->InitRegisters();
+    //         currentThread->space->RestoreState();
+    //     }
+    // }
+
+    currentThread->space->InitRegisters();
+    currentThread->space->RestoreState();
+    
+    machine->Run();
+}
+
+void Syscall_Exit();
+void Syscall_Exec();
+
+
+
 void
 ExceptionHandler(ExceptionType which)
 {
-    int type = machine->ReadRegister(2);
+    int type = machine->ReadRegister(REG_R2);
 
     if ((which == SyscallException) && (type == SC_Halt)) 
     {
 		DEBUG('a', "Shutdown, initiated by user program.\n");
 	   	interrupt->Halt();
-    } 
+    }
+    else if((which == SyscallException) && (type == SC_Exec))
+    {
+        DEBUG('a', "Exec, initiated by user program.\n");
+        Syscall_Exec();
+    }
+    else if((which == SyscallException) && (type == SC_Exit))
+    {
+        DEBUG('a', "Exit, initiated by user program.\n");
+        Syscall_Exit();
+    }
     else 
     {
 		printf("Unexpected user mode exception %d %d\n", which, type);
 		ASSERT(FALSE);
+    }
+}
+
+
+void Syscall_Exit()
+{
+    int status = machine->ReadRegister(REG_A0);
+    
+    currentThread->Finish();
+    machine->WriteRegister(REG_V0, status);
+}
+
+
+void Syscall_Exec()
+{
+    // address in main memory where path is stored
+    int addr = machine->ReadRegister(REG_A0);
+
+    // copying path to name[]
+    char path[MAX_FILEPATH_LENGTH + 1];
+    int i = 0, len = 0;
+    while(1)
+    {
+        machine->ReadMem(addr + i, 1, (int *)&path[i]);
+        if(path[i] == '\0') break;
+        i++;
+
+        // when file path is too long
+        if(i > MAX_FILEPATH_LENGTH)
+        {
+            printf("Length of file name exceeds limit!");
+            ASSERT(FALSE);
+        }
+    }
+
+    len = i;
+
+    OpenFile* exeFile = fileSystem->Open(path);
+
+    if(exeFile == NULL)
+    {
+        // unsuccessful file open
+        printf("Cannot open executable file!\n");
+        machine->WriteRegister(REG_V0, -1);
+    }
+    else
+    {
+        // successfully opened file
+        AddrSpace* addrspace = new AddrSpace(exeFile);
+
+        // extract filename from path, like extract "try" from "../test/try"
+        int lastSlash = 0;
+        for(i = 0; i < len ; i++) if(path[i] == '/') lastSlash = i + 1;
+
+        printf("Executing %s...\n", path + lastSlash);
+        Thread* newThread =  new Thread(path + lastSlash);
+
+        // allocate in process table
+        newThread->PID = processTable->Alloc(addrspace);
+        newThread->space = addrspace;
+
+        // start new process
+        newThread->Fork(ThreadFunction, 1);
+
+        // return PID to Kernel
+        machine->WriteRegister(REG_V0, newThread->PID);
     }
 }

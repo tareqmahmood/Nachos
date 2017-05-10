@@ -35,10 +35,17 @@ extern Timer *timer;				// the hardware alarm clock
 #include "machine.h"
 extern Machine* machine;	// user program memory and registers
 
+    // **************** My Code Starts **************** //
+
 #include "memorymanager.h"
 
 extern MemoryManager *memorymanager;	// manage page allocation
 extern Lock *memoryLock;				// lock on memory read and write	
+
+#include "processtable.h"
+extern ProcessTable *processTable;		// keep track of process ids
+
+    // **************** My Code Ends **************** //
 
 #endif
 

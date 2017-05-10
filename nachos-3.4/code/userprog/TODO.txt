@@ -1,1 +1,11 @@
+QUERY:
+
+1. "Write functions for reading from and writing to virtual memory." -- where should i write?
+
+
+TO DO:
+
 1. page table lock - is it necessary?
+
+2. in userprog/exception.cc in ThreadFunction(int) : what and why should we do?
+
