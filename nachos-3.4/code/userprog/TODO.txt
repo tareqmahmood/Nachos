@@ -5,7 +5,11 @@ QUERY:
 
 PENDING:
 
-1. issue concerning path length
+1. issue concerning path length, SafeRead()
+
+2. DONE:: find the bug in Exec
+
+3. convert any pointers (ie, char* pointers) from virtual to physical addresses.
 
 
 TO DO:

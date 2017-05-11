@@ -33,6 +33,9 @@ StartProcess(char *filename)
     space = new AddrSpace(executable);    
     currentThread->space = space;
 
+    // marking currentThread as a process
+    currentThread->PID = processTable->Alloc(space);
+
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values
@@ -47,17 +50,28 @@ StartProcess(char *filename)
 // Data structures needed for the console test.  Threads making
 // I/O requests wait on a Semaphore to delay until the I/O completes.
 
+
+
+// *************  I CHANGED IT *********************
+
+
 static Console *console;
 static Semaphore *readAvail;
 static Semaphore *writeDone;
+
+
+// ************ YES, I CHANGED IT *****************
+
 
 //----------------------------------------------------------------------
 // ConsoleInterruptHandlers
 // 	Wake up the thread that requested the I/O.
 //----------------------------------------------------------------------
 
+
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
+
 
 //----------------------------------------------------------------------
 // ConsoleTest
@@ -82,3 +96,4 @@ ConsoleTest (char *in, char *out)
 	if (ch == 'q') return;  // if q, quit
     }
 }
+

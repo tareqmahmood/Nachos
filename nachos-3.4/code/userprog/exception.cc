@@ -57,6 +57,16 @@
 
 void SafeRead();
 
+void pcUp()
+{
+        int pc = machine->ReadRegister(PCReg);
+        machine->WriteRegister(PrevPCReg, pc);
+        pc = machine->ReadRegister(NextPCReg);
+        machine->WriteRegister(PCReg, pc);
+        pc += 4;
+        machine->WriteRegister(NextPCReg, pc);
+}
+
 void ThreadFunction(int arg)
 {
     if(arg == 0)
@@ -72,16 +82,17 @@ void ThreadFunction(int arg)
         }
     }
 
-    printf("%d\n", arg);
-
     // currentThread->space->InitRegisters();
     // currentThread->space->RestoreState();
     
     machine->Run();
+    ASSERT(FALSE);
 }
 
 void Syscall_Exit();
 void Syscall_Exec();
+void Syscall_Read();
+void Syscall_Write();
 
 
 
@@ -89,6 +100,8 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(REG_R2);
+
+    
 
     if ((which == SyscallException) && (type == SC_Halt)) 
     {
@@ -105,6 +118,16 @@ ExceptionHandler(ExceptionType which)
         DEBUG('a', "Exit, initiated by user program.\n");
         Syscall_Exit();
     }
+    else if((which == SyscallException) && (type == SC_Read))
+    {
+        DEBUG('a', "Read, initiated by user program.\n");
+        Syscall_Read();
+    }
+    else if((which == SyscallException) && (type == SC_Write))
+    {
+        DEBUG('a', "Write, initiated by user program.\n");
+        Syscall_Write();
+    }
     else 
     {
 		printf("Unexpected user mode exception %d %d\n", which, type);
@@ -117,13 +140,20 @@ void Syscall_Exit()
 {
     int status = machine->ReadRegister(REG_A0);
 
-    printf("Exiting %s. with value %d\n", currentThread->getName(), status);
+    printf(">> Exiting %s. with value %d\n", currentThread->getName(), status);
+
+    // if(!strcmp(currentThread->getName(), "main"))
+    // {
+    //     printf("main thread\n");
+    //     currentThread->Yield();
+    //     return;
+    // }
     
     int PID = currentThread->PID;
 
     // freeing page table
     AddrSpace* space = (AddrSpace*) processTable->Get(PID);
-    delete space;
+    if(space != 0) delete space;
 
     // freeing process entry
     processTable->Free(PID);
@@ -131,13 +161,18 @@ void Syscall_Exit()
     // if there are no more processes, Halt()
     if(processTable->getProcessCount() == 0)
     {
-        printf("Last thread %s.\n", currentThread->getName());
+        printf(">> Last thread %s.\n", currentThread->getName());
         interrupt->Halt();
+        return;
     }
+
+    printf(">> Exited...\n");
 
     // otherwise, just stop this thread
     currentThread->Finish();
-    machine->WriteRegister(REG_V0, status);
+    machine->WriteRegister(2, status);
+
+    pcUp();
 }
 
 
@@ -183,24 +218,65 @@ void Syscall_Exec()
         // extract filename from path, like extract "try" from "../test/try"
         int lastSlash = 0;
         for(i = 0; i < len ; i++) if(path[i] == '/') lastSlash = i + 1;
+        char newName[50];
+        strcpy(newName, path + lastSlash);
+        printf("Executing %s...\n", newName);
 
-        printf("Executing %s...\n", path + lastSlash);
-        Thread* newThread =  new Thread(path + lastSlash);
+        Thread* newThread =  new Thread("child");
 
         // allocate in process table
         newThread->PID = processTable->Alloc(addrspace);
         newThread->space = addrspace;
 
-        printf("1\n");
-
         // start new process
-        newThread->Fork(ThreadFunction, 0);
-
-        printf("2\n");
+        newThread->Fork(ThreadFunction, 1);
 
         // return PID to Kernel
-        machine->WriteRegister(REG_V0, newThread->PID);
-
-        printf("3\n");
+        machine->WriteRegister(2, newThread->PID);
     }
+    pcUp();
+}
+
+
+
+void Syscall_Read()
+{
+    int addr = machine->ReadRegister(REG_A0);
+    int size = machine->ReadRegister(REG_A1);
+
+    //printf("Read %d %d\n", addr, size);
+
+    int i = 0;
+    char ch;
+    for(i = 0; i < size; i++)
+    {
+        semReadAvail->P();
+        ch = userConsole->GetChar();
+        if(ch == '\n') break;
+        machine->WriteMem(addr + i, 1, ch);
+    }
+    machine->WriteMem(addr + i, 1, '\0');
+    machine->WriteRegister(2, i);
+    pcUp();
+}
+
+
+void Syscall_Write()
+{
+    int addr = machine->ReadRegister(REG_A0);
+    int size = machine->ReadRegister(REG_A1);
+
+    // addr = currentThread->space->pageTable[addr].physicalPage;
+
+    //printf("Write %d %d\n", addr, size);
+
+    int i = 0, value;
+    for(i = 0; i < size; i++)
+    {
+        machine->ReadMem(addr + i, 1, &value);
+        userConsole->PutChar((char)value);
+        semWriteDone->P();
+    }
+    machine->WriteRegister(2, i);
+    pcUp();
 }

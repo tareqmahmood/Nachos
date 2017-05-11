@@ -2,7 +2,6 @@
 
 int main()
 {
-	//int n = 20;
-	//Write("Hello World!\n", 15, 1);
+	int a[10];
 	Exit(0);
 }

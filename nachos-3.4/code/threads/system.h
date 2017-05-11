@@ -45,6 +45,11 @@ extern Lock *memoryLock;				// lock on memory read and write
 #include "processtable.h"
 extern ProcessTable *processTable;		// keep track of process ids
 
+#include "console.h"
+extern Console *userConsole;
+extern Semaphore *semReadAvail;
+extern Semaphore *semWriteDone;
+
     // **************** My Code Ends **************** //
 
 #endif

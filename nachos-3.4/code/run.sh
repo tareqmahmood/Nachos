@@ -1,2 +1,2 @@
 cd userprog
-./nachos -x ../test/try
+./nachos -rs 80 -x ../test/try

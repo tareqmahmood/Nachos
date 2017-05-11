@@ -68,7 +68,6 @@ void ProcessTable::Free(int index)
 	if(allocated)
 	{
 		procMap->Clear(index);
-		delete table[index];
 		table[index] = 0;
 		processCount--;
 	}

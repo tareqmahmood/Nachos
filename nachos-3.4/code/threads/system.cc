@@ -42,6 +42,14 @@ Lock *memoryLock;                   // lock on memory read and write
 
 ProcessTable *processTable;
 
+Console *userConsole;
+Semaphore *semReadAvail;
+Semaphore *semWriteDone;
+
+static void ConsoleReadAvail(int arg) { semReadAvail->V(); }
+static void ConsoleWriteDone(int arg) { semWriteDone->V(); }
+
+
     // **************** My Code Ends **************** //
  
 #endif
@@ -106,6 +114,7 @@ Initialize(int argc, char **argv)
     memoryLock = new Lock("Memory Lock");
 
     processTable = new ProcessTable(MAX_PROCESS_NUMBER);
+    
 
     // **************** My Code Ends ****************** //
 
@@ -177,6 +186,20 @@ Initialize(int argc, char **argv)
     
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
+
+
+    // **************** My Code Starts ***********************//
+
+    // The reason why I initialised console far down the line,
+    // You can not initialize console before initializing interrupt mechanism.
+    // See how interrupt is initialised
+
+    userConsole = new Console(NULL, NULL, ConsoleReadAvail, ConsoleWriteDone, 0);
+    semReadAvail = new Semaphore("read avail", 0);
+    semWriteDone = new Semaphore("write done", 0);
+
+    // **************** My Code Ends *************************//
+
 #endif
 
 #ifdef FILESYS
