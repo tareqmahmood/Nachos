@@ -50,6 +50,8 @@ extern Console *userConsole;
 extern Semaphore *semReadAvail;
 extern Semaphore *semWriteDone;
 
+extern Lock *consoleLock;
+
     // **************** My Code Ends **************** //
 
 #endif

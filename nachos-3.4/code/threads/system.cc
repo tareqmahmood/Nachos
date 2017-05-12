@@ -45,6 +45,7 @@ ProcessTable *processTable;
 Console *userConsole;
 Semaphore *semReadAvail;
 Semaphore *semWriteDone;
+Lock *consoleLock;
 
 static void ConsoleReadAvail(int arg) { semReadAvail->V(); }
 static void ConsoleWriteDone(int arg) { semWriteDone->V(); }
@@ -197,6 +198,7 @@ Initialize(int argc, char **argv)
     userConsole = new Console(NULL, NULL, ConsoleReadAvail, ConsoleWriteDone, 0);
     semReadAvail = new Semaphore("read avail", 0);
     semWriteDone = new Semaphore("write done", 0);
+    consoleLock = new Lock("Console Lock");
 
     // **************** My Code Ends *************************//
 

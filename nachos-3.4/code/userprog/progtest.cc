@@ -34,7 +34,7 @@ StartProcess(char *filename)
     currentThread->space = space;
 
     // marking currentThread as a process
-    currentThread->PID = processTable->Alloc(space);
+    currentThread->PID = processTable->Alloc(currentThread);
 
     delete executable;			// close file
 

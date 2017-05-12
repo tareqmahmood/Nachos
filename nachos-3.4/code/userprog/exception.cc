@@ -101,8 +101,6 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(REG_R2);
 
-    
-
     if ((which == SyscallException) && (type == SC_Halt)) 
     {
 		DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -152,7 +150,7 @@ void Syscall_Exit()
     int PID = currentThread->PID;
 
     // freeing page table
-    AddrSpace* space = (AddrSpace*) processTable->Get(PID);
+    AddrSpace* space = currentThread->space;
     if(space != 0) delete space;
 
     // freeing process entry
@@ -161,12 +159,12 @@ void Syscall_Exit()
     // if there are no more processes, Halt()
     if(processTable->getProcessCount() == 0)
     {
-        printf(">> Last thread %s.\n", currentThread->getName());
+        //printf(">> Last thread %s.\n", currentThread->getName());
         interrupt->Halt();
         return;
     }
 
-    printf(">> Exited...\n");
+    //printf(">> Exited...\n");
 
     // otherwise, just stop this thread
     currentThread->Finish();
@@ -225,7 +223,7 @@ void Syscall_Exec()
         Thread* newThread =  new Thread("child");
 
         // allocate in process table
-        newThread->PID = processTable->Alloc(addrspace);
+        newThread->PID = processTable->Alloc(newThread);
         newThread->space = addrspace;
 
         // start new process
@@ -241,6 +239,7 @@ void Syscall_Exec()
 
 void Syscall_Read()
 {
+    consoleLock->Acquire();
     int addr = machine->ReadRegister(REG_A0);
     int size = machine->ReadRegister(REG_A1);
 
@@ -258,11 +257,13 @@ void Syscall_Read()
     machine->WriteMem(addr + i, 1, '\0');
     machine->WriteRegister(2, i);
     pcUp();
+    consoleLock->Release();
 }
 
 
 void Syscall_Write()
 {
+    consoleLock->Acquire();
     int addr = machine->ReadRegister(REG_A0);
     int size = machine->ReadRegister(REG_A1);
 
@@ -279,4 +280,5 @@ void Syscall_Write()
     }
     machine->WriteRegister(2, i);
     pcUp();
+    consoleLock->Release();
 }

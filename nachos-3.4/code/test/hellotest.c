@@ -2,6 +2,6 @@
 
 int main()
 {
-	int a[10];
+	Write("Hello World\n", 12, 0);
 	Exit(0);
 }
