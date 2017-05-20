@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "machine.h"
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -93,7 +94,7 @@ void Syscall_Exit();
 void Syscall_Exec();
 void Syscall_Read();
 void Syscall_Write();
-
+void PageFaultExceptionHandler();
 
 
 void
@@ -125,6 +126,20 @@ ExceptionHandler(ExceptionType which)
     {
         DEBUG('a', "Write, initiated by user program.\n");
         Syscall_Write();
+    }
+    else if(which == PageFaultException)
+    {
+        PageFaultExceptionHandler();
+    }
+    else if(which == AddressErrorException)
+    {
+        printf("AddressErrorException\n");
+        ASSERT(FALSE);
+    }
+    else if(which == OverflowException)
+    {
+        printf("OverflowException\n");
+        ASSERT(FALSE);
     }
     else 
     {
@@ -281,4 +296,20 @@ void Syscall_Write()
     machine->WriteRegister(2, i);
     pcUp();
     consoleLock->Release();
+}
+
+
+void PageFaultExceptionHandler()
+{
+    int virtualAddr = machine->ReadRegister(BadVAddrReg);
+
+    int physicalPage = memorymanager->AllocPage();
+    
+    if(physicalPage == -1)
+    {
+        printf("Ran out of memory %d\n");
+        ASSERT(FALSE);
+    }
+
+    currentThread->space->loadIntoFreePage(virtualAddr, physicalPage);
 }

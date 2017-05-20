@@ -36,8 +36,6 @@ StartProcess(char *filename)
     // marking currentThread as a process
     currentThread->PID = processTable->Alloc(currentThread);
 
-    delete executable;			// close file
-
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
 

@@ -15,8 +15,6 @@ int
 main()
 {
     int i, j, tmp;
-    Write("Inside sort\n", 12, 0);
-    Exec("../test/hellotest");
     /* first initialize the array, in reverse sorted order */
     for (i = 0; i < 1024; i++)		
         A[i] = 1024 - i;

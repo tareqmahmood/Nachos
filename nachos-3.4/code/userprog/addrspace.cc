@@ -18,7 +18,6 @@
 #include "copyright.h"
 #include "system.h"
 #include "addrspace.h"
-#include "noff.h"
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -62,7 +61,7 @@ SwapHeader (NoffHeader *noffH)
 
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    NoffHeader noffH;
+    this->executable = executable;
     unsigned int i, size, j;
     int successfulAllocation = 1;
 
@@ -79,7 +78,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
-    ASSERT(numPages <= NumPhysPages);		// check we're not trying
+    //ASSERT(numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
 						// at least until we have
 						// virtual memory
@@ -97,14 +96,16 @@ AddrSpace::AddrSpace(OpenFile *executable)
     {
     	pageTable[i].virtualPage = i;
 
-    	pageTable[i].physicalPage = memorymanager->AllocPage();        // allock free page
-        if(pageTable[i].physicalPage == -1)                     // check whether ran out of memory
-        {
-            successfulAllocation = 0;
-            break;
-        }
+        pageTable[i].physicalPage = -1;
 
-    	pageTable[i].valid = TRUE;
+    	// pageTable[i].physicalPage = memorymanager->AllocPage();        // allock free page
+     //    if(pageTable[i].physicalPage == -1)                     // check whether ran out of memory
+     //    {
+     //        successfulAllocation = 0;
+     //        break;
+     //    }
+
+    	pageTable[i].valid = FALSE;
     	pageTable[i].use = FALSE;
     	pageTable[i].dirty = FALSE;
     	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
@@ -141,6 +142,11 @@ AddrSpace::AddrSpace(OpenFile *executable)
 			// noffH.initData.size, noffH.initData.inFileAddr);
    //  }
 
+
+
+
+
+    /* **** NACHOS 3 ********
 
 
     memoryLock->Acquire();
@@ -186,6 +192,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
     memoryLock->Release();
 
+    */
+
 }
 
 //----------------------------------------------------------------------
@@ -198,9 +206,11 @@ AddrSpace::~AddrSpace()
     unsigned int i = 0;
     for(i = 0; i < numPages; i++)
     {
-        memorymanager->FreePage(pageTable[i].physicalPage);
+        if(pageTable[i].valid == TRUE)
+            memorymanager->FreePage(pageTable[i].physicalPage);
     }
     delete pageTable;
+    delete executable;
 }
 
 //----------------------------------------------------------------------
@@ -258,4 +268,63 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+void AddrSpace::loadIntoFreePage(int addr, int physicalPage)
+{
+    int virtualPage = addr / PageSize;
+    pageTable[virtualPage].physicalPage = physicalPage;
+    pageTable[virtualPage].valid = TRUE;
+
+
+    // inside code segment
+    if(addr >= noffH.code.virtualAddr && addr < (noffH.code.virtualAddr + noffH.code.size))
+    {
+        // find codeoffset
+        int codeoffset = (addr - noffH.code.virtualAddr) / PageSize;
+        int codesize = noffH.code.virtualAddr + noffH.code.size - codeoffset * PageSize;
+        if(codesize > PageSize) codesize = PageSize;
+        executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize]), 
+                codesize, noffH.code.inFileAddr + codeoffset * PageSize);
+
+        // overlap with initialized data segment
+        if(codesize < PageSize)
+        {
+            int datasize = PageSize - codesize;
+            executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + codesize]), 
+                datasize, noffH.code.inFileAddr + codeoffset * PageSize + codesize);
+        }
+    }
+
+
+    // inside data segment
+    else if(addr >= noffH.initData.virtualAddr && addr < (noffH.initData.virtualAddr + noffH.initData.size))
+    {
+        // find dataoffset
+        int dataoffset = (addr - noffH.initData.virtualAddr) / PageSize;
+        int datasize = noffH.initData.virtualAddr + noffH.initData.size - dataoffset * PageSize;
+        if(datasize > PageSize) datasize = PageSize;
+        executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize]), 
+                datasize, noffH.initData.inFileAddr + dataoffset * PageSize);
+
+        // overlap with uninitialized data segment
+        if(datasize < PageSize)
+        {
+            int udatasize = PageSize - datasize;
+            bzero(&(machine->mainMemory[physicalPage * PageSize + datasize]), udatasize);
+        }
+    }
+
+
+    // inside uninitialised data segment
+    else if(addr >= noffH.uninitData.virtualAddr && addr < (noffH.uninitData.virtualAddr + noffH.uninitData.size))
+    {
+        bzero(&(machine->mainMemory[physicalPage * PageSize]), PageSize);
+    }
+
+    // zero'd out memory
+    else
+    {
+        bzero(&(machine->mainMemory[physicalPage * PageSize]), PageSize);
+    }
 }

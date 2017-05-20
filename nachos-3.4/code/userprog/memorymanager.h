@@ -14,12 +14,20 @@ class MemoryManager
 	int numPages;
 	Lock* memLock;
 	BitMap* map;
+	int processMap;
+	TranslationEntry *entries;
 public:
 	MemoryManager(int n);
 	~MemoryManager();
 
 	/* Allocate a free page, returning its physical page number or -1 */
 	int AllocPage();
+
+	/* Allocate with process no and translation entry */
+	int AllocPage(int processNo, TranslationEntry *entry);
+
+	/* Allocate by force, for swapping */
+	int AllocByForce();
 
 	/* Free the physical page and make it available for future allocation. */
 	void FreePage(int physPageNum);

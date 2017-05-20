@@ -231,6 +231,13 @@ Cleanup()
     
 #ifdef USER_PROGRAM
     delete machine;
+    delete memorymanager;
+    delete processTable;
+    delete userConsole;
+    delete semReadAvail;
+    delete semWriteDone;
+    delete consoleLock;
+    delete memoryLock;
 #endif
 
 #ifdef FILESYS_NEEDED

@@ -9,11 +9,13 @@ MemoryManager::MemoryManager(int n)
 	memLock = new Lock("Memory Lock");
 }
 
+
 MemoryManager::~MemoryManager()
 {
 	delete memLock;
 	delete map;
 }
+
 
 int MemoryManager::AllocPage()
 {
@@ -23,12 +25,20 @@ int MemoryManager::AllocPage()
 	return pagePos;
 }
 
+
+int MemoryManager::AllocPage(int processNo, TranslationEntry *entry)
+{
+	
+}
+
+
 void MemoryManager::FreePage(int physPageNum)
 {
 	memLock->Acquire();
 	map->Clear(physPageNum);
 	memLock->Release();
 }
+
 
 bool MemoryManager::IsPageAllocated(int physPageNum)
 {

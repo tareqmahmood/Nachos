@@ -15,11 +15,14 @@
 
 #include "copyright.h"
 #include "filesys.h"
+#include "noff.h"
 // #include "synch.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
 class AddrSpace {
+    OpenFile *executable;
+    NoffHeader noffH;
   public:
     AddrSpace(OpenFile *executable);	// Create an address space,
 					// initializing it with the program
@@ -31,6 +34,9 @@ class AddrSpace {
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
+
+
+    void loadIntoFreePage(int addr, int physicalPage);
 
 
     TranslationEntry *pageTable;	// Assume linear page table translation
