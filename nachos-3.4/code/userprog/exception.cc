@@ -131,6 +131,16 @@ ExceptionHandler(ExceptionType which)
     {
         PageFaultExceptionHandler();
     }
+    else if(which == ReadOnlyException)
+    {
+        printf("Read only exception\n");
+        ASSERT(FALSE);
+    }
+    else if(which == BusErrorException)
+    {
+        printf("Bus error exception\n");
+        ASSERT(FALSE);
+    }
     else if(which == AddressErrorException)
     {
         printf("AddressErrorException\n");
@@ -139,6 +149,11 @@ ExceptionHandler(ExceptionType which)
     else if(which == OverflowException)
     {
         printf("OverflowException\n");
+        ASSERT(FALSE);
+    }
+    else if(which == IllegalInstrException)
+    {
+        printf("Illegal instruction exception\n");
         ASSERT(FALSE);
     }
     else 
@@ -302,6 +317,9 @@ void Syscall_Write()
 void PageFaultExceptionHandler()
 {
     int virtualAddr = machine->ReadRegister(BadVAddrReg);
+    int virtualPage = virtualAddr / PageSize;
+
+    DEBUG('p', "PageFaultException VA = %d\n", virtualAddr);
 
     int physicalPage = memorymanager->AllocPage();
     
@@ -311,5 +329,8 @@ void PageFaultExceptionHandler()
         ASSERT(FALSE);
     }
 
-    currentThread->space->loadIntoFreePage(virtualAddr, physicalPage);
+    currentThread->space->loadIntoFreePage(virtualPage, physicalPage);
+
+
+    DEBUG('p', "successfulAllocation of VA = %d\n\n", virtualAddr);
 }

@@ -102,7 +102,7 @@ void
 Initialize(int argc, char **argv)
 {
     int argCount;
-    char* debugArgs = "";
+    char* debugArgs = "p";
     bool randomYield = FALSE;
 
 #ifdef USER_PROGRAM

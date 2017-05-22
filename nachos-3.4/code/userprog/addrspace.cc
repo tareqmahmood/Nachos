@@ -270,61 +270,95 @@ void AddrSpace::RestoreState()
     machine->pageTableSize = numPages;
 }
 
-void AddrSpace::loadIntoFreePage(int addr, int physicalPage)
+void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
 {
-    int virtualPage = addr / PageSize;
-    pageTable[virtualPage].physicalPage = physicalPage;
-    pageTable[virtualPage].valid = TRUE;
+    memoryLock->Acquire();
 
+    pageTable[vpn].physicalPage = physicalPage;
+    pageTable[vpn].valid = TRUE;
+
+    int virtualAddr = vpn * PageSize;               // starting vaddr of this page
+    int physicalAddr = physicalPage * PageSize;
 
     // inside code segment
-    if(addr >= noffH.code.virtualAddr && addr < (noffH.code.virtualAddr + noffH.code.size))
+    if(noffH.code.size > 0 
+        && virtualAddr >= noffH.code.virtualAddr 
+        && virtualAddr < (noffH.code.virtualAddr + noffH.code.size))
     {
         // find codeoffset
-        int codeoffset = (addr - noffH.code.virtualAddr) / PageSize;
-        int codesize = noffH.code.virtualAddr + noffH.code.size - codeoffset * PageSize;
-        if(codesize > PageSize) codesize = PageSize;
-        executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize]), 
-                codesize, noffH.code.inFileAddr + codeoffset * PageSize);
+        int codeoffset = (virtualAddr - noffH.code.virtualAddr);
+
+        // for(int i = 0; i < PageSize; i++)
+        // {
+        //     executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + i]), 
+        //         1, noffH.code.inFileAddr + codeoffset + i);
+        // }
+
+
+        int codesize = noffH.code.size - codeoffset;
+        int size = min(codesize, PageSize);
+        executable->ReadAt(&(machine->mainMemory[physicalAddr]), 
+                size, noffH.code.inFileAddr + codeoffset);
 
         // overlap with initialized data segment
-        if(codesize < PageSize)
+        if(size < PageSize)
         {
-            int datasize = PageSize - codesize;
-            executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + codesize]), 
-                datasize, noffH.code.inFileAddr + codeoffset * PageSize + codesize);
+            
+            int datasize = PageSize - size;
+            datasize = min(datasize, noffH.initData.size);
+            if(datasize > 0)
+                executable->ReadAt(&(machine->mainMemory[physicalAddr + size]), 
+                    datasize, noffH.initData.inFileAddr);
         }
     }
 
 
     // inside data segment
-    else if(addr >= noffH.initData.virtualAddr && addr < (noffH.initData.virtualAddr + noffH.initData.size))
+    else if(noffH.initData.size > 0 
+        && virtualAddr >= noffH.initData.virtualAddr 
+        && virtualAddr < (noffH.initData.virtualAddr + noffH.initData.size))
     {
         // find dataoffset
-        int dataoffset = (addr - noffH.initData.virtualAddr) / PageSize;
-        int datasize = noffH.initData.virtualAddr + noffH.initData.size - dataoffset * PageSize;
-        if(datasize > PageSize) datasize = PageSize;
-        executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize]), 
-                datasize, noffH.initData.inFileAddr + dataoffset * PageSize);
+        int dataoffset = (virtualAddr - noffH.initData.virtualAddr);
+
+        // for(int i = 0; i < PageSize; i++)
+        // {
+        //     executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + i]), 
+        //         1, noffH.initData.inFileAddr + dataoffset + i);
+        // }
+
+
+        int datasize = noffH.initData.size - dataoffset;
+        int size = min(datasize, PageSize);
+        executable->ReadAt(&(machine->mainMemory[physicalAddr]), 
+                size, noffH.initData.inFileAddr + dataoffset);
 
         // overlap with uninitialized data segment
-        if(datasize < PageSize)
+        if(size < PageSize)
         {
-            int udatasize = PageSize - datasize;
-            bzero(&(machine->mainMemory[physicalPage * PageSize + datasize]), udatasize);
+            int udatasize = PageSize - size;
+            udatasize = min(udatasize, noffH.uninitData.size);
+            if(udatasize > 0)
+                bzero(&(machine->mainMemory[physicalAddr + size]), udatasize);
         }
     }
 
 
     // inside uninitialised data segment
-    else if(addr >= noffH.uninitData.virtualAddr && addr < (noffH.uninitData.virtualAddr + noffH.uninitData.size))
+    else if(noffH.uninitData.size > 0 
+        && virtualAddr >= noffH.uninitData.virtualAddr 
+        && virtualAddr < (noffH.uninitData.virtualAddr + noffH.uninitData.size))
     {
-        bzero(&(machine->mainMemory[physicalPage * PageSize]), PageSize);
+        int size = min(noffH.uninitData.size + noffH.uninitData.virtualAddr - virtualAddr, PageSize);
+        bzero(&(machine->mainMemory[physicalAddr]), size);
     }
 
     // zero'd out memory
     else
     {
-        bzero(&(machine->mainMemory[physicalPage * PageSize]), PageSize);
+        bzero(&(machine->mainMemory[physicalAddr]), PageSize);
     }
+
+
+    memoryLock->Release();
 }
