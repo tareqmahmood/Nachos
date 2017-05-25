@@ -14,8 +14,12 @@ class MemoryManager
 	int numPages;
 	Lock* memLock;
 	BitMap* map;
-	int processMap;
+
+	int *processMap;
 	TranslationEntry *entries;
+
+	int round;
+
 public:
 	MemoryManager(int n);
 	~MemoryManager();
@@ -24,7 +28,7 @@ public:
 	int AllocPage();
 
 	/* Allocate with process no and translation entry */
-	int AllocPage(int processNo, TranslationEntry *entry);
+	int AllocPage(int processNo, TranslationEntry &entry);
 
 	/* Allocate by force, for swapping */
 	int AllocByForce();

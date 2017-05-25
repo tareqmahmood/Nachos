@@ -1,13 +1,14 @@
 #include "syscall.h"
 
+int a[1024], i;
+
 int
 main()
 {
 	//Write("try..\n", 6, 0);
-	int a[20], i;
-	for(i = 0; i < 20; i++)
+	for(i = 0; i < 1024; i++)
 	{
-		// a[i] = i;
+		a[i] = i;
 	}
     Exit(0);
     /* not reached */

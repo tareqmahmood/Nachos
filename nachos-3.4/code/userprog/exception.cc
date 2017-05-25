@@ -317,7 +317,7 @@ void Syscall_Write()
 void PageFaultExceptionHandler()
 {
     int virtualAddr = machine->ReadRegister(BadVAddrReg);
-    int virtualPage = virtualAddr / PageSize;
+    int vpn = virtualAddr / PageSize;
 
     DEBUG('p', "PageFaultException VA = %d\n", virtualAddr);
 
@@ -325,11 +325,14 @@ void PageFaultExceptionHandler()
     
     if(physicalPage == -1)
     {
-        printf("Ran out of memory %d\n");
-        ASSERT(FALSE);
+        physicalPage = memorymanager->AllocByForce();
+        currentThread->space->evictPage(physicalPage);
+        DEBUG('p', "By Force Allocation VA = %d\n", virtualAddr);
+        //printf("Ran out of memory\n");
+        //ASSERT(FALSE);
     }
 
-    currentThread->space->loadIntoFreePage(virtualPage, physicalPage);
+    currentThread->space->loadIntoFreePage(vpn, physicalPage);
 
 
     DEBUG('p', "successfulAllocation of VA = %d\n\n", virtualAddr);

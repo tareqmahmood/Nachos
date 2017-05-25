@@ -35,9 +35,10 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
 
-
+    void evictPage(int physicalPage);
     void loadIntoFreePage(int addr, int physicalPage);
 
+    int *PhyToVir;      // physical to virtual addr map, -1 if no mapping
 
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!

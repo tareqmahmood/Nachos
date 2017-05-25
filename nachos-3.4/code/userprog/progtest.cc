@@ -23,8 +23,6 @@
 void
 StartProcess(char *filename)
 {
-    printf("1\n");
-
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
 
@@ -32,9 +30,7 @@ StartProcess(char *filename)
     	printf("Unable to open file %s\n", filename);
     	return;
     }
-    printf("2\n");
-    space = new AddrSpace(executable);
-    printf("3\n");    
+    space = new AddrSpace(executable);  
     currentThread->space = space;
 
     // marking currentThread as a process
@@ -42,7 +38,6 @@ StartProcess(char *filename)
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
-    printf("4\n");
     machine->Run();			// jump to the user progam
     
     ASSERT(FALSE);			// machine->Run never returns;

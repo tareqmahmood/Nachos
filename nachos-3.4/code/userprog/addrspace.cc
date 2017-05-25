@@ -87,6 +87,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
 					numPages, size);
 
 
+    // set up Phy
+
+    PhyToVir = new int[NumPhysPages];
 
 // first, set up the translation 
     
@@ -270,12 +273,42 @@ void AddrSpace::RestoreState()
     machine->pageTableSize = numPages;
 }
 
+
+void AddrSpace::evictPage(int physicalPage)
+{
+    memoryLock->Acquire();
+
+    DEBUG('p', "Evicting PhyPage %d\n", physicalPage);
+
+    int vpn;
+    for(int i = 0; i < numPages; i++)
+    {
+        if(pageTable[i].physicalPage == physicalPage) 
+        {
+            vpn = i;
+            break;
+        }
+    }
+
+    DEBUG('p', "Found VirPage %d\n", vpn);
+
+    pageTable[vpn].physicalPage = -1;
+    pageTable[vpn].valid = FALSE;
+    pageTable[vpn].use = FALSE;
+    pageTable[vpn].dirty = FALSE;
+
+    memoryLock->Release();
+}
+
+
 void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
 {
     memoryLock->Acquire();
 
     pageTable[vpn].physicalPage = physicalPage;
     pageTable[vpn].valid = TRUE;
+    pageTable[vpn].use = FALSE;
+    pageTable[vpn].dirty = FALSE;
 
     int virtualAddr = vpn * PageSize;               // starting vaddr of this page
     int physicalAddr = physicalPage * PageSize;
@@ -287,14 +320,6 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     {
         // find codeoffset
         int codeoffset = (virtualAddr - noffH.code.virtualAddr);
-
-        // for(int i = 0; i < PageSize; i++)
-        // {
-        //     executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + i]), 
-        //         1, noffH.code.inFileAddr + codeoffset + i);
-        // }
-
-
         int codesize = noffH.code.size - codeoffset;
         int size = min(codesize, PageSize);
         executable->ReadAt(&(machine->mainMemory[physicalAddr]), 
@@ -320,14 +345,6 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     {
         // find dataoffset
         int dataoffset = (virtualAddr - noffH.initData.virtualAddr);
-
-        // for(int i = 0; i < PageSize; i++)
-        // {
-        //     executable->ReadAt(&(machine->mainMemory[physicalPage * PageSize + i]), 
-        //         1, noffH.initData.inFileAddr + dataoffset + i);
-        // }
-
-
         int datasize = noffH.initData.size - dataoffset;
         int size = min(datasize, PageSize);
         executable->ReadAt(&(machine->mainMemory[physicalAddr]), 
@@ -358,7 +375,6 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     {
         bzero(&(machine->mainMemory[physicalAddr]), PageSize);
     }
-
 
     memoryLock->Release();
 }
