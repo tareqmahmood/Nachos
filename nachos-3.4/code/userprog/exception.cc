@@ -100,6 +100,8 @@ void PageFaultExceptionHandler();
 void
 ExceptionHandler(ExceptionType which)
 {
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
     int type = machine->ReadRegister(REG_R2);
 
     if ((which == SyscallException) && (type == SC_Halt)) 
@@ -161,6 +163,8 @@ ExceptionHandler(ExceptionType which)
 		printf("Unexpected user mode exception %d %d\n", which, type);
 		ASSERT(FALSE);
     }
+
+    (void) interrupt->SetLevel(oldLevel);
 }
 
 
@@ -212,6 +216,7 @@ void Syscall_Exec()
     // copying path to name[]
     char path[MAX_FILEPATH_LENGTH + 1];
     int i = 0, len = 0;
+    currentThread->space->savePageTable();
     while(1)
     {
         machine->ReadMem(addr + i, 1, (int *)&path[i]);
@@ -225,6 +230,7 @@ void Syscall_Exec()
             ASSERT(FALSE);
         }
     }
+    currentThread->space->restorePageTable();
 
     len = i;
 
@@ -277,6 +283,7 @@ void Syscall_Read()
 
     int i = 0;
     char ch;
+    currentThread->space->savePageTable();
     for(i = 0; i < size; i++)
     {
         semReadAvail->P();
@@ -285,6 +292,7 @@ void Syscall_Read()
         machine->WriteMem(addr + i, 1, ch);
     }
     machine->WriteMem(addr + i, 1, '\0');
+    currentThread->space->restorePageTable();
     machine->WriteRegister(2, i);
     pcUp();
     consoleLock->Release();
@@ -302,12 +310,14 @@ void Syscall_Write()
     //printf("Write %d %d\n", addr, size);
 
     int i = 0, value;
+    currentThread->space->savePageTable();
     for(i = 0; i < size; i++)
     {
         machine->ReadMem(addr + i, 1, &value);
         userConsole->PutChar((char)value);
         semWriteDone->P();
     }
+    currentThread->space->restorePageTable();
     machine->WriteRegister(2, i);
     pcUp();
     consoleLock->Release();
@@ -327,7 +337,7 @@ void PageFaultExceptionHandler()
     {
         physicalPage = memorymanager->AllocByForce();
         currentThread->space->evictPage(physicalPage);
-        DEBUG('p', "By Force Allocation VA = %d\n", virtualAddr);
+        DEBUG('p', "By Force Allocation of PP = %d for VP = %d\n", physicalPage, vpn);
         //printf("Ran out of memory\n");
         //ASSERT(FALSE);
     }
@@ -335,5 +345,5 @@ void PageFaultExceptionHandler()
     currentThread->space->loadIntoFreePage(vpn, physicalPage);
 
 
-    DEBUG('p', "successfulAllocation of VA = %d\n\n", virtualAddr);
+    DEBUG('p', "successfulAllocation of PP = %d for VP = %d\n\n", physicalPage, vpn);
 }

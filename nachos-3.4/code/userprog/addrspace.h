@@ -23,6 +23,14 @@
 class AddrSpace {
     OpenFile *executable;
     NoffHeader noffH;
+
+    // swap space
+    char swapSpace[SwapPages * PageSize];
+
+    TranslationEntry *tempPageTable;
+    unsigned int tempPageTableSize;
+
+
   public:
     AddrSpace(OpenFile *executable);	// Create an address space,
 					// initializing it with the program
@@ -33,10 +41,21 @@ class AddrSpace {
 					// before jumping to user code
 
     void SaveState();			// Save/restore address space-specific
-    void RestoreState();		// info on a context switch 
+    void RestoreState();		// info on a context switch
+
+    void savePageTable();
+    void restorePageTable();
 
     void evictPage(int physicalPage);
     void loadIntoFreePage(int addr, int physicalPage);
+
+
+    void saveIntoSwapSpace(int vpn);
+    void loadFromSwapSpace(int vpn);
+    bool isSwapPageExists(int vpn);
+
+
+
 
     int *PhyToVir;      // physical to virtual addr map, -1 if no mapping
 

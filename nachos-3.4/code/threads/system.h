@@ -40,7 +40,9 @@ extern Machine* machine;	// user program memory and registers
 #include "memorymanager.h"
 
 extern MemoryManager *memorymanager;	// manage page allocation
-extern Lock *memoryLock;				// lock on memory read and write	
+extern Lock *memoryLock;				// lock on memory read and write
+extern MemoryManager *swapmanager;	// tracks swap spaces
+extern Lock *swapLock;
 
 #include "processtable.h"
 extern ProcessTable *processTable;		// keep track of process ids

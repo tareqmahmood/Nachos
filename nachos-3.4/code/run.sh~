@@ -1,2 +1,0 @@
-cd userprog
-./nachos -d -x ../test/$1

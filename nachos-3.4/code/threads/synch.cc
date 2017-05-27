@@ -119,6 +119,8 @@ Lock::~Lock()
 void Lock::Acquire() 
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
+
+    DEBUG('p', ">> Lock Acquired %s\n", name);
     
     while (value == 0)             // lock not available
     {
@@ -141,6 +143,8 @@ void Lock::Release()
     scheduler->ReadyToRun(thread);
     holderThread = 0;       // no one holds the lock now
     value = 1;              // back to original value
+
+    DEBUG('p', "<< Lock Released %s\n", name);
 
     (void) interrupt->SetLevel(oldLevel);
 }

@@ -6,7 +6,7 @@ MemoryManager::MemoryManager(int n)
 {
 	numPages = n;
 	map = new BitMap(n);
-	memLock = new Lock("Memory Lock");
+	memLock = new Lock("Manager Lock");
 	processMap = new int[n];
 	round = 0;
 	for(int i = 0; i < n; i++) 

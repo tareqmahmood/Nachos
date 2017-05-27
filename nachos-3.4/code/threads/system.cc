@@ -38,7 +38,9 @@ Machine *machine;	// user program memory and registers
     // **************** My Code Starts **************** //
 
 MemoryManager *memorymanager;       // manage page allocation
-Lock *memoryLock;                   // lock on memory read and write 
+MemoryManager *swapmanager;    // tracks swap spaces
+Lock *memoryLock;                   // lock on memory read and write
+Lock *swapLock;                     // lock on swap space
 
 ProcessTable *processTable;
 
@@ -112,7 +114,11 @@ Initialize(int argc, char **argv)
 
     memorymanager = new MemoryManager(NumPhysPages);
 
+    swapmanager = new MemoryManager(SwapPages);
+
     memoryLock = new Lock("Memory Lock");
+
+    swapLock = new Lock("Swap Lock");
 
     processTable = new ProcessTable(MAX_PROCESS_NUMBER);
     
@@ -238,6 +244,8 @@ Cleanup()
     delete semWriteDone;
     delete consoleLock;
     delete memoryLock;
+    delete swapmanager;
+    delete swapLock;
 #endif
 
 #ifdef FILESYS_NEEDED

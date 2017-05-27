@@ -100,6 +100,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     	pageTable[i].virtualPage = i;
 
         pageTable[i].physicalPage = -1;
+        pageTable[i].swapPage = -1;
 
     	// pageTable[i].physicalPage = memorymanager->AllocPage();        // allock free page
      //    if(pageTable[i].physicalPage == -1)                     // check whether ran out of memory
@@ -257,7 +258,9 @@ AddrSpace::InitRegisters()
 //----------------------------------------------------------------------
 
 void AddrSpace::SaveState() 
-{}
+{
+
+}
 
 //----------------------------------------------------------------------
 // AddrSpace::RestoreState
@@ -272,6 +275,25 @@ void AddrSpace::RestoreState()
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
 }
+
+
+
+void AddrSpace::savePageTable()
+{
+    tempPageTable = machine->pageTable;
+    tempPageTableSize = machine->pageTableSize;
+    machine->pageTable = pageTable;
+    machine->pageTableSize = numPages;
+}
+
+
+
+void AddrSpace::restorePageTable()
+{
+    machine->pageTable = tempPageTable;
+    machine->pageTableSize = tempPageTableSize;
+}
+
 
 
 void AddrSpace::evictPage(int physicalPage)
@@ -292,6 +314,8 @@ void AddrSpace::evictPage(int physicalPage)
 
     DEBUG('p', "Found VirPage %d\n", vpn);
 
+    saveIntoSwapSpace(vpn);
+
     pageTable[vpn].physicalPage = -1;
     pageTable[vpn].valid = FALSE;
     pageTable[vpn].use = FALSE;
@@ -309,6 +333,15 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     pageTable[vpn].valid = TRUE;
     pageTable[vpn].use = FALSE;
     pageTable[vpn].dirty = FALSE;
+
+    if(isSwapPageExists(vpn))
+    {
+        loadFromSwapSpace(vpn);
+        memoryLock->Release();
+        return;
+    }
+
+    
 
     int virtualAddr = vpn * PageSize;               // starting vaddr of this page
     int physicalAddr = physicalPage * PageSize;
@@ -377,4 +410,59 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     }
 
     memoryLock->Release();
+}
+
+
+
+void AddrSpace::saveIntoSwapSpace(int vpn)
+{
+    int spn = pageTable[vpn].swapPage;
+    if(spn == -1)
+    {
+        spn = swapmanager->AllocPage();
+        pageTable[vpn].swapPage = spn;
+    }
+
+    DEBUG('p', "Save into swap page no = %d\n", spn);
+    ASSERT(spn != -1);
+    int physicalAddr = pageTable[vpn].physicalPage * PageSize;
+    int virtualAddr = vpn * PageSize;
+    int data;
+    int swapAddr = spn * PageSize;
+    savePageTable();
+    for(int i = 0; i < PageSize; i++)
+    {
+        machine->ReadMem(virtualAddr + i, 1, &data);
+        swapSpace[swapAddr + i] = (char) data;
+        // swapSpace[swapAddr + i] = machine->mainMemory[physicalAddr + i];
+    }
+    restorePageTable();
+    DEBUG('p', "Saved into swap page \n");
+}
+
+
+void AddrSpace::loadFromSwapSpace(int vpn)
+{
+    int spn = pageTable[vpn].swapPage;
+    DEBUG('p', "load from swap page no = %d\n", spn);
+    ASSERT(spn != -1);
+    int physicalAddr = pageTable[vpn].physicalPage * PageSize;
+    int virtualAddr = vpn * PageSize;
+    int data;
+    int swapAddr = spn * PageSize;
+    savePageTable();
+    for(int i = 0; i < PageSize; i++)
+    {
+        data = (int) swapSpace[swapAddr + i];
+        machine->WriteMem(virtualAddr + i, 1, data);
+        // machine->mainMemory[physicalAddr + i] = swapSpace[swapAddr + i];
+    }
+    restorePageTable();
+}
+
+
+
+bool AddrSpace::isSwapPageExists(int vpn)
+{
+    return pageTable[vpn].swapPage != -1;
 }
