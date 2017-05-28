@@ -24,9 +24,6 @@ class AddrSpace {
     OpenFile *executable;
     NoffHeader noffH;
 
-    // swap space
-    char swapSpace[SwapPages * PageSize];
-
     TranslationEntry *tempPageTable;
     unsigned int tempPageTableSize;
 

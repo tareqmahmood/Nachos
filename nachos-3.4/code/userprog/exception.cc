@@ -211,16 +211,20 @@ void Syscall_Exit()
 void Syscall_Exec()
 {
     // address in main memory where path is stored
+
+    currentThread->space->savePageTable();
+
     int addr = machine->ReadRegister(REG_A0);
 
     // copying path to name[]
     char path[MAX_FILEPATH_LENGTH + 1];
     int i = 0, len = 0;
-    currentThread->space->savePageTable();
+    
     while(1)
     {
         machine->ReadMem(addr + i, 1, (int *)&path[i]);
         if(path[i] == '\0') break;
+
         i++;
 
         // when file path is too long
@@ -232,6 +236,8 @@ void Syscall_Exec()
     }
     currentThread->space->restorePageTable();
 
+    if(path[0] != '.') path[0] = '.';
+    
     len = i;
 
     printf("executable file %s\n", path);
@@ -331,12 +337,12 @@ void PageFaultExceptionHandler()
 
     DEBUG('p', "PageFaultException VA = %d\n", virtualAddr);
 
-    int physicalPage = memorymanager->AllocPage();
+    int physicalPage = memorymanager->AllocPage(currentThread->PID, vpn);
     
     if(physicalPage == -1)
     {
-        physicalPage = memorymanager->AllocByForce();
-        currentThread->space->evictPage(physicalPage);
+        physicalPage = memorymanager->AllocByForce(currentThread->PID, vpn);
+        //currentThread->space->evictPage(physicalPage);
         DEBUG('p', "By Force Allocation of PP = %d for VP = %d\n", physicalPage, vpn);
         //printf("Ran out of memory\n");
         //ASSERT(FALSE);

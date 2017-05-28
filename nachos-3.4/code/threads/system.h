@@ -54,6 +54,12 @@ extern Semaphore *semWriteDone;
 
 extern Lock *consoleLock;
 
+#include "inversepagetable.h"
+extern InversePageTable inversePageTable[NumPhysPages];
+
+// swap space
+extern char swapSpace[SwapPages * PageSize];
+
     // **************** My Code Ends **************** //
 
 #endif

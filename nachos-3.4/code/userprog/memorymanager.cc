@@ -1,5 +1,6 @@
 #include "copyright.h"
 #include "memorymanager.h"
+#include "system.h"
 
 
 MemoryManager::MemoryManager(int n)
@@ -32,22 +33,51 @@ int MemoryManager::AllocPage()
 }
 
 
-int MemoryManager::AllocPage(int processNo, TranslationEntry &entry)
+int MemoryManager::AllocPage(int processID, int vpn)
 {
 	memLock->Acquire();
-	int pagePos = map->Find();		// find a free page
+	int physicalPage = map->Find();		// find a free page
+	if(physicalPage != -1)
+	{
+		inversePageTable[physicalPage].processID = processID;
+		inversePageTable[physicalPage].virtualPage = vpn;
+		inversePageTable[physicalPage].lastUsed = stats->totalTicks;
+	}
 	memLock->Release();
-	return pagePos;
+	return physicalPage;
 }
 
 
-int MemoryManager::AllocByForce()
+int MemoryManager::AllocByForce(int processID, int vpn)
 {
 	memLock->Acquire();
-	int pagePos = round;		// find a free page
-	round = (round + 1) % NumPhysPages;
+	// int pagePos = round;		// find a free page
+	// round = (round + 1) % NumPhysPages;
+
+	// find least recently used physical page
+	unsigned int smallestTime = inversePageTable[0].lastUsed;
+	int physicalPage = 0;
+	for(int i = 1; i < NumPhysPages; i++)
+	{
+		if(inversePageTable[i].lastUsed < smallestTime)
+		{
+			physicalPage = i;
+		}
+	}
+	DEBUG('p', "LRU Physical Page = %d\n", physicalPage);
+	
+	// time to write back this page
+	Thread *thread = (Thread *)processTable->Get(inversePageTable[physicalPage].processID);
+	ASSERT(thread != NULL);
+	thread->space->evictPage(inversePageTable[physicalPage].virtualPage);
+
+	// time to alloc
+	inversePageTable[physicalPage].processID = processID;
+	inversePageTable[physicalPage].virtualPage = vpn;
+	inversePageTable[physicalPage].lastUsed = stats->totalTicks;
+
 	memLock->Release();
-	return pagePos;
+	return physicalPage;
 }
 
 

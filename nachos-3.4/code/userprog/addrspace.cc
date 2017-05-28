@@ -296,23 +296,23 @@ void AddrSpace::restorePageTable()
 
 
 
-void AddrSpace::evictPage(int physicalPage)
+void AddrSpace::evictPage(int vpn)
 {
     memoryLock->Acquire();
 
-    DEBUG('p', "Evicting PhyPage %d\n", physicalPage);
+    DEBUG('p', "Evicting VirPage %d\n", vpn);
 
-    int vpn;
-    for(int i = 0; i < numPages; i++)
-    {
-        if(pageTable[i].physicalPage == physicalPage) 
-        {
-            vpn = i;
-            break;
-        }
-    }
+    // int vpn;
+    // for(int i = 0; i < numPages; i++)
+    // {
+    //     if(pageTable[i].physicalPage == physicalPage) 
+    //     {
+    //         vpn = i;
+    //         break;
+    //     }
+    // }
 
-    DEBUG('p', "Found VirPage %d\n", vpn);
+    // DEBUG('p', "Found VirPage %d\n", vpn);
 
     saveIntoSwapSpace(vpn);
 

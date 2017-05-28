@@ -47,7 +47,8 @@ main.o: ../threads/main.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../userprog/memorymanager.h \
  ../userprog/bitmap.h ../filesys/openfile.h ../threads/synch.h \
- ../userprog/processtable.h ../machine/console.h
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 list.o: ../threads/list.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/list.h ../threads/utility.h \
  ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -83,7 +84,8 @@ scheduler.o: ../threads/scheduler.cc /usr/include/stdc-predef.h \
  ../bin/noff.h ../threads/system.h ../machine/interrupt.h \
  ../threads/list.h ../machine/stats.h ../machine/timer.h \
  ../userprog/memorymanager.h ../userprog/bitmap.h ../filesys/openfile.h \
- ../threads/synch.h ../userprog/processtable.h ../machine/console.h
+ ../threads/synch.h ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 synch.o: ../threads/synch.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/synch.h ../threads/thread.h \
  ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
@@ -105,7 +107,7 @@ synch.o: ../threads/synch.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h
+ ../machine/console.h ../userprog/inversepagetable.h
 synchlist.o: ../threads/synchlist.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/synchlist.h ../threads/list.h \
  ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
@@ -145,7 +147,7 @@ system.o: ../threads/system.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h
+ ../machine/console.h ../userprog/inversepagetable.h
 thread.o: ../threads/thread.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/thread.h ../threads/utility.h \
  ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
@@ -167,7 +169,8 @@ thread.o: ../threads/thread.cc /usr/include/stdc-predef.h \
  ../threads/system.h ../threads/scheduler.h ../machine/interrupt.h \
  ../threads/list.h ../machine/stats.h ../machine/timer.h \
  ../userprog/memorymanager.h ../userprog/bitmap.h ../filesys/openfile.h \
- ../threads/synch.h ../userprog/processtable.h ../machine/console.h
+ ../threads/synch.h ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 utility.o: ../threads/utility.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
  ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
@@ -218,8 +221,9 @@ producer.o: ../threads/producer.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../threads/synch.h ../threads/buffer.h \
- /usr/include/unistd.h /usr/include/i386-linux-gnu/bits/posix_opt.h \
+ ../machine/console.h ../userprog/inversepagetable.h ../threads/synch.h \
+ ../threads/buffer.h /usr/include/unistd.h \
+ /usr/include/i386-linux-gnu/bits/posix_opt.h \
  /usr/include/i386-linux-gnu/bits/environments.h \
  /usr/include/i386-linux-gnu/bits/confname.h /usr/include/getopt.h
 consumer.o: ../threads/consumer.cc /usr/include/stdc-predef.h \
@@ -243,8 +247,9 @@ consumer.o: ../threads/consumer.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../threads/synch.h ../threads/buffer.h \
- /usr/include/unistd.h /usr/include/i386-linux-gnu/bits/posix_opt.h \
+ ../machine/console.h ../userprog/inversepagetable.h ../threads/synch.h \
+ ../threads/buffer.h /usr/include/unistd.h \
+ /usr/include/i386-linux-gnu/bits/posix_opt.h \
  /usr/include/i386-linux-gnu/bits/environments.h \
  /usr/include/i386-linux-gnu/bits/confname.h /usr/include/getopt.h
 threadtest.o: ../threads/threadtest.cc /usr/include/stdc-predef.h \
@@ -268,8 +273,8 @@ threadtest.o: ../threads/threadtest.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../threads/synch.h ../threads/buffer.h \
- ../threads/consumer.h ../threads/producer.h
+ ../machine/console.h ../userprog/inversepagetable.h ../threads/synch.h \
+ ../threads/buffer.h ../threads/consumer.h ../threads/producer.h
 interrupt.o: ../machine/interrupt.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/interrupt.h ../threads/list.h \
  ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
@@ -291,7 +296,7 @@ interrupt.o: ../machine/interrupt.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h
+ ../machine/console.h ../userprog/inversepagetable.h
 sysdep.o: ../machine/sysdep.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h /usr/include/stdio.h /usr/include/features.h \
  /usr/include/i386-linux-gnu/sys/cdefs.h \
@@ -355,7 +360,8 @@ sysdep.o: ../machine/sysdep.cc /usr/include/stdc-predef.h \
  ../bin/noff.h ../threads/scheduler.h ../threads/list.h \
  ../machine/interrupt.h ../machine/stats.h ../machine/timer.h \
  ../userprog/memorymanager.h ../userprog/bitmap.h ../filesys/openfile.h \
- ../threads/synch.h ../userprog/processtable.h ../machine/console.h
+ ../threads/synch.h ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 stats.o: ../machine/stats.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/utility.h ../threads/copyright.h \
  ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \
@@ -391,7 +397,8 @@ timer.o: ../machine/timer.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../userprog/memorymanager.h \
  ../userprog/bitmap.h ../filesys/openfile.h ../threads/synch.h \
- ../userprog/processtable.h ../machine/console.h
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 addrspace.o: ../userprog/addrspace.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/system.h ../threads/copyright.h \
  ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
@@ -413,7 +420,8 @@ addrspace.o: ../userprog/addrspace.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../userprog/addrspace.h
+ ../machine/console.h ../userprog/inversepagetable.h \
+ ../userprog/addrspace.h
 bitmap.o: ../userprog/bitmap.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../userprog/bitmap.h ../threads/utility.h \
  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -450,7 +458,8 @@ exception.o: ../userprog/exception.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../userprog/syscall.h
+ ../machine/console.h ../userprog/inversepagetable.h \
+ ../userprog/syscall.h
 progtest.o: ../userprog/progtest.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../threads/system.h ../threads/copyright.h \
  ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
@@ -472,7 +481,8 @@ progtest.o: ../userprog/progtest.cc /usr/include/stdc-predef.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../filesys/openfile.h ../threads/synch.h ../userprog/processtable.h \
- ../machine/console.h ../userprog/addrspace.h
+ ../machine/console.h ../userprog/inversepagetable.h \
+ ../userprog/addrspace.h
 console.o: ../machine/console.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/console.h ../threads/utility.h \
  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -494,7 +504,8 @@ console.o: ../machine/console.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../userprog/memorymanager.h \
  ../userprog/bitmap.h ../filesys/openfile.h ../threads/synch.h \
- ../userprog/processtable.h ../machine/console.h
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 machine.o: ../machine/machine.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/machine.h ../threads/utility.h \
  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -516,7 +527,8 @@ machine.o: ../machine/machine.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../userprog/memorymanager.h \
  ../userprog/bitmap.h ../filesys/openfile.h ../threads/synch.h \
- ../userprog/processtable.h ../machine/console.h
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 mipssim.o: ../machine/mipssim.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/machine.h ../threads/utility.h \
  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -538,7 +550,8 @@ mipssim.o: ../machine/mipssim.cc /usr/include/stdc-predef.h \
  ../threads/scheduler.h ../threads/list.h ../machine/interrupt.h \
  ../threads/list.h ../machine/stats.h ../machine/timer.h \
  ../userprog/memorymanager.h ../userprog/bitmap.h ../filesys/openfile.h \
- ../threads/synch.h ../userprog/processtable.h ../machine/console.h
+ ../threads/synch.h ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 translate.o: ../machine/translate.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/machine.h ../threads/utility.h \
  ../threads/copyright.h ../threads/bool.h ../machine/sysdep.h \
@@ -560,7 +573,8 @@ translate.o: ../machine/translate.cc /usr/include/stdc-predef.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../userprog/memorymanager.h \
  ../userprog/bitmap.h ../filesys/openfile.h ../threads/synch.h \
- ../userprog/processtable.h ../machine/console.h
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 memorymanager.o: ../userprog/memorymanager.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../userprog/memorymanager.h ../userprog/bitmap.h \
  ../threads/utility.h ../threads/copyright.h ../threads/bool.h \
@@ -579,7 +593,11 @@ memorymanager.o: ../userprog/memorymanager.cc /usr/include/stdc-predef.h \
  ../threads/thread.h ../threads/utility.h ../machine/machine.h \
  ../machine/translate.h ../machine/disk.h ../userprog/addrspace.h \
  ../filesys/filesys.h ../filesys/openfile.h ../bin/noff.h \
- ../threads/list.h
+ ../threads/list.h ../threads/system.h ../threads/scheduler.h \
+ ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
+ ../machine/timer.h ../userprog/memorymanager.h \
+ ../userprog/processtable.h ../machine/console.h \
+ ../userprog/inversepagetable.h
 processtable.o: ../userprog/processtable.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../userprog/processtable.h ../threads/synch.h \
  ../threads/copyright.h ../threads/thread.h ../threads/utility.h \

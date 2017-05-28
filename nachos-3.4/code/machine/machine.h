@@ -33,7 +33,7 @@
 					// simplicity
 
 #define NumPhysPages    4
-#define SwapPages       100      // 4096 bytes
+#define SwapPages       500      // 4096 bytes
 #define MemorySize 	(NumPhysPages * PageSize)
 #define TLBSize		4		// if there is a TLB, make it small
 

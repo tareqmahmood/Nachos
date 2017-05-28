@@ -5,6 +5,7 @@
 #include "bitmap.h"
 #include "synch.h"
 
+
 /* Create a manager to track the allocation of numPages of physical memory.
 You will create one by calling the constructor with NumPhysPages as
 the parameter. All physical pages start as free, unallocated pages. */
@@ -28,10 +29,10 @@ public:
 	int AllocPage();
 
 	/* Allocate with process no and translation entry */
-	int AllocPage(int processNo, TranslationEntry &entry);
+	int AllocPage(int processID, int vpn);
 
 	/* Allocate by force, for swapping */
-	int AllocByForce();
+	int AllocByForce(int processID, int vpn);
 
 	/* Free the physical page and make it available for future allocation. */
 	void FreePage(int physPageNum);

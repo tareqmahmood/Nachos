@@ -53,6 +53,11 @@ static void ConsoleReadAvail(int arg) { semReadAvail->V(); }
 static void ConsoleWriteDone(int arg) { semWriteDone->V(); }
 
 
+InversePageTable inversePageTable[NumPhysPages];
+
+// swap space
+char swapSpace[SwapPages * PageSize];
+
     // **************** My Code Ends **************** //
  
 #endif
@@ -104,7 +109,7 @@ void
 Initialize(int argc, char **argv)
 {
     int argCount;
-    char* debugArgs = "p";
+    char* debugArgs = "";
     bool randomYield = FALSE;
 
 #ifdef USER_PROGRAM
