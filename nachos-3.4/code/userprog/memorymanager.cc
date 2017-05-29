@@ -51,8 +51,12 @@ int MemoryManager::AllocPage(int processID, int vpn)
 int MemoryManager::AllocByForce(int processID, int vpn)
 {
 	memLock->Acquire();
-	// int pagePos = round;		// find a free page
+
+	// // round robin algorithm
+	// int physicalPage = round;		// find a free page
 	// round = (round + 1) % NumPhysPages;
+
+	
 
 	// find least recently used physical page
 	unsigned int smallestTime = inversePageTable[0].lastUsed;
@@ -65,6 +69,9 @@ int MemoryManager::AllocByForce(int processID, int vpn)
 		}
 	}
 	DEBUG('p', "LRU Physical Page = %d\n", physicalPage);
+
+
+
 	
 	// time to write back this page
 	Thread *thread = (Thread *)processTable->Get(inversePageTable[physicalPage].processID);

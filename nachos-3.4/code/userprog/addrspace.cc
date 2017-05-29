@@ -316,6 +316,8 @@ void AddrSpace::evictPage(int vpn)
 
     saveIntoSwapSpace(vpn);
 
+    stats->numPagesOut++;
+
     pageTable[vpn].physicalPage = -1;
     pageTable[vpn].valid = FALSE;
     pageTable[vpn].use = FALSE;
@@ -337,6 +339,7 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
     if(isSwapPageExists(vpn))
     {
         loadFromSwapSpace(vpn);
+        stats->numPagesIn++;
         memoryLock->Release();
         return;
     }
@@ -409,6 +412,7 @@ void AddrSpace::loadIntoFreePage(int vpn, int physicalPage)
         bzero(&(machine->mainMemory[physicalAddr]), PageSize);
     }
 
+    stats->numPagesIn++;
     memoryLock->Release();
 }
 

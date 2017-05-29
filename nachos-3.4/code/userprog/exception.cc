@@ -332,6 +332,8 @@ void Syscall_Write()
 
 void PageFaultExceptionHandler()
 {
+    stats->numPageFaults++;
+
     int virtualAddr = machine->ReadRegister(BadVAddrReg);
     int vpn = virtualAddr / PageSize;
 

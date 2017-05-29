@@ -1,0 +1,28 @@
+Physical Memory Size = 4 Pages
+Page Replacement Policy = LRU
+
+Program		PageFaults	PageIns		PageOuts
+----------	----------	----------	-----------
+halt		3		3		0
+hellotest	26		26		18
+matmult		69812		69812		69808
+sort		1284862		1284862		1284858
+
+
+
+
+Physical Memory Size = 4 Pages
+Page Replacement Policy = Round Robin
+
+Program		PageFaults	PageIns		PageOuts
+----------	----------	----------	-----------
+halt		3		3		0
+hellotest	24		24		16
+matmult		66495		66495		66491
+sort		1589292		1589292		1589288
+
+
+
+
+
+
