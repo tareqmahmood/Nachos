@@ -3,6 +3,15 @@
 #include "system.h"
 
 
+int state = 777;
+
+int Rand()
+{
+   state = state * 1664525 + 1013904223;
+   return abs(state >> 24);
+}
+
+
 MemoryManager::MemoryManager(int n)
 {
 	numPages = n;
@@ -56,7 +65,13 @@ int MemoryManager::AllocByForce(int processID, int vpn)
 	// int physicalPage = round;		// find a free page
 	// round = (round + 1) % NumPhysPages;
 
-	
+
+
+	// // random page replacement
+	// int physicalPage = Rand() % NumPhysPages;
+
+
+
 
 	// find least recently used physical page
 	unsigned int smallestTime = inversePageTable[0].lastUsed;
